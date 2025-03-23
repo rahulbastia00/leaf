@@ -1,11 +1,19 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const jwt = require('jsonwebtoken');
+const cors = require('cors');
 const User = require('./models/Users');
+const jwt = require('jsonwebtoken');
+
 
 dotenv.config();
 const app = express();
+
+app.use(cors({
+    origin: 'http://localhost:3000', // Allow your frontend origin
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true, // Allow cookies if needed
+}));
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })

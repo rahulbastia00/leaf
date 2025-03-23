@@ -7,27 +7,48 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // Add your login logic here
+      const response = await fetch("http://localhost:8000/signin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to log in");
+      }
+
+      // Store JWT token in localStorage
+      localStorage.setItem("token", data.token);
+
       toast({
         title: "Success",
         description: "Logged in successfully",
       });
-    } catch (error) {
+
+      // Redirect to dashboard or home page
+      router.push("/dashboard");
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Invalid credentials",
+        description: error.message || "Invalid credentials",
         variant: "destructive",
       });
     } finally {

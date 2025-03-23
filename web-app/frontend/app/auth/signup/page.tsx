@@ -22,7 +22,7 @@ export default function SignupPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,15 +40,36 @@ export default function SignupPage() {
     }
 
     try {
-      // Add your signup logic here
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstname: formData.firstName,
+          lastname: formData.lastName,
+          email: formData.email,
+          giturl: formData.githubUrl,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Signup failed");
+      }
+
       toast({
         title: "Success",
-        description: "Account created successfully",
+        description: "Account created successfully!",
       });
-    } catch (error) {
+
+      // Redirect to login page
+      window.location.href = "/auth/login";
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to create account",
+        description: error.message || "Failed to create account",
         variant: "destructive",
       });
     } finally {
